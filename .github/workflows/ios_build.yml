@@ -23,6 +23,12 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Ensure iOS platform files exist
+        run: |
+          if [ ! -d ios ]; then
+            flutter create --platforms=ios .
+          fi
+
       - name: Build iOS App (Unsigned)
         # We use --no-codesign because you don't have Apple Developer certificates yet
         run: flutter build ios --release --no-codesign
