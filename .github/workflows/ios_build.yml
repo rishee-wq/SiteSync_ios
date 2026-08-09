@@ -1,0 +1,40 @@
+name: iOS Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # This allows you to manually trigger the build from GitHub
+
+jobs:
+  build-ios:
+    name: Build iOS App
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS App (Unsigned)
+        # We use --no-codesign because you don't have Apple Developer certificates yet
+        run: flutter build ios --release --no-codesign
+
+      - name: Compress iOS App
+        run: |
+          cd build/ios/iphoneos
+          tar -czf ios-app.tar.gz Runner.app
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-artifact
+          path: build/ios/iphoneos/ios-app.tar.gz
+          retention-days: 7
